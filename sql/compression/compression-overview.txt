@@ -1,0 +1,17 @@
+-- See http://techblog.constantcontact.com/devops/space-the-final-frontier-a-story-of-mysql-compression/
+--  requires innodb_file_format  = Barracuda 
+
+set session sql_log_bin=0
+
+ALTER TABLE L1_Contacts03.file_exports ROW_FORMAT=DYNAMIC
+
+show warnings
+
+--------------
+set session sql_log_bin=0
+
+ALTER TABLE L1_Contacts03.import_records ROW_FORMAT=DYNAMIC
+
+show warnings
+
+

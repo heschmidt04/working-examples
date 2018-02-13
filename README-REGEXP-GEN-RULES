@@ -1,0 +1,30 @@
+. (dot) any character
+\w word character
+\d digit 
+\s whitespace
+\S NON white space character
++ 1 or more
+* 0 or more 
+
+
+def Find(pat, text):
+  match = re.search(pat, text)
+  if match: print match.group()
+  else: print ' not found '
+
+Find('...g', 'called piiig')
+
+
+Find('..g', 'called piiig much better: xyzg')
+
+Find('..gs', 'called piiig much better: xyzgs')
+
+Find('..gs', 'called piiig much better: xyzgs')
+
+Find(r'c\..gs', 'called piiig much better: xyzgs')
+
+Find(r'\d+\.', '1.2.3.4 52.62.72.84')
+
+Find(r':\S+\.', 'blah blah :kitten123123&a=123&yatta. blah blah ')
+
+Find(r'\d+.\d+.\d+', 'blah:123.456.789 ba ')

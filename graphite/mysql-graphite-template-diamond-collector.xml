@@ -1,0 +1,524 @@
+[
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.diskspace._mysqldata01.gigabyte_used),1)",
+      "substr(cactiStyle(servers.mysql-sql101.diskspace._mysqllogs.gigabyte_used),1)",
+      "substr(cactiStyle(servers.mysql-sql101.diskspace._mysqltemp.gigabyte_used),1)",
+      "substr(cactiStyle(servers.mysql-sql101.diskspace._var.gigabyte_used),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL DIsk Space Usage",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.08772944600294152",
+    "_salt": "1360597795.775",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Threads_cached),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Aborted_connects)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Connections)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Aborted_clients)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL Connections (Cached, Aborted and Connected)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.6952590852234658",
+    "_salt": "1360254925.352",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.mysql.Max_used_connections,1)",
+      "substr(servers.mysql-sql101.mysql.Threads_cached,1)",
+      "substr(servers.mysql-sql101.mysql.Threads_connected,1)",
+      "substr(servers.mysql-sql101.mysql.Threads_running,1)",
+      "substr(servers.mysql-sql101.mysql.Connections,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.mysql.Aborted_connects,1)),1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.mysql.Aborted_clients,1)),1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.mysql.Slow_launch_threads,1)),1)"
+    ],
+    "title": "MySQL Connections (Thoroughput)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.2577752661597871",
+    "_salt": "1360263938.402",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "alias(cactiStyle(sumSeries(cactiStyle(movingAverage(servers.mysql-sql101.mysql.Com_select,5)),cactiStyle(movingAverage(servers.mysql-sql101.mysql.Qcache_hits,5)))),\"Combined Selects\")",
+      "alias(cactiStyle(movingAverage(cactiStyle(servers.mysql-sql101.mysql.Com_update),5)),\"Updates\")",
+      "alias(cactiStyle(sumSeries(cactiStyle(movingAverage(servers.mysql-sql101.mysql.Com_insert,5)),cactiStyle(movingAverage(servers.mysql-sql101.mysql.Com_replace,5)))),\"Combined Inserts\")",
+      "alias(cactiStyle(servers.mysql-sql101.mysql.Qcache_hits),\"Query Cache Hits (Already in Memory)\")",
+      "alias(cactiStyle(servers.mysql-sql101.mysql.Com_select),\"Selects\")",
+      "secondYAxis(alias(cactiStyle(movingAverage(cactiStyle(servers.mysql-sql101.mysql.Com_delete),5)),\"Deletes\"))"
+    ],
+    "title": "MySQL Statements \"SELECTs\", \"INSERTs\", \"UPDATEs\", \"DELETEs\"",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.2686522240782524",
+    "_salt": "1360181807.869",
+    "template": "hicon_white"
+  },
+  {
+    "_salt": [
+      "1360175686.74 ?width",
+      "1360619587.468"
+    ],
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_bp_pages_read),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_bp_pages_written),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_bp_pages_created),1)",
+      "substr(servers.mysql-sql101.memory.process.mysqld.rss,1)",
+      "substr(secondYAxis(servers.mysql-sql101.memory.process.mysqld.vms),1)"
+    ],
+    "title": [
+      "Innodb Buffer Pool Activity",
+      "MySQL Daemon Memory Virtual and Resident size"
+    ],
+    "height": [
+      "400",
+      "400"
+    ],
+    "width": "600",
+    "_uniq": [
+      "0.2394473230870794",
+      "0.8624950634368913"
+    ],
+    "template": [
+      "hicon_white",
+      "hicon_white"
+    ],
+    "hideLegend": "false"
+  },
+  {
+    "target": [
+      "cactiStyle(substr(servers.mysql-sql101.memory.Swap*,1))"
+    ],
+    "title": "Memory Swap ",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.09429597090089326",
+    "_salt": "1360598662.817",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Created_tmp_tables),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Created_tmp_files),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Created_tmp_disk_tables),1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL Temporary Objects",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.5945682546287107",
+    "_salt": "1360339055.75",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.cpu.total.user,1)",
+      "substr(servers.mysql-sql101.cpu.total.system,1)",
+      "substr(servers.mysql-sql101.cpu.total.idle,1)",
+      "substr(secondYAxis(servers.mysql-sql101.cpu.total.iowait),1)"
+    ],
+    "title": "CPU",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.7236429806629697",
+    "_salt": "1360687652.168",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.iostat.fioa.iops,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.util_percentage,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.reads_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.service_time,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.read_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.write_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.writes_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.await,1)",
+      "substr(servers.mysql-sql101.iostat.fioa.*_await,1)",
+      "substr(secondYAxis(servers.mysql-sql101.iostat.fioa.io_milliseconds_weighted),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Fusion IO Disk Stats",
+    "height": "400",
+   "width": "600",
+    "_uniq": "0.5863743151277756",
+    "_salt": "1360691897.846",
+    "template": "hicon_white"
+  },
+  {
+    "_salt": [
+      "1360785642.402 ?width",
+      "1360691897.846"
+    ],
+    "target": [
+      "substr(servers.mysql-sql101.vmstat.pgpg*,1)",
+      "substr(secondYAxis(servers.mysql-sql101.vmstat.pswp*),1)",
+      "substr(servers.mysql-sql101.iostat.sdb.iops,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.util_percentage,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.reads_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.service_time,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.read_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.write_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.writes_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.await,1)",
+      "substr(servers.mysql-sql101.iostat.sdb.*_await,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.iostat.sdb.io_milliseconds_weighted,1)),1)"
+    ],
+    "title": [
+      "VMSTAT Paging Info",
+      "Disk Stats sdb (mysqllogs )"
+    ],
+    "height": [
+      "400",
+      "400"
+    ],
+    "width": "600",
+    "_uniq": [
+      "0.5723247484485147",
+      "0.615246938652996"
+    ],
+    "template": [
+      "hicon_white",
+      "hicon_white"
+    ],
+    "hideLegend": "false"
+  },
+  {
+    "_salt": [
+      "1360185132.336 ?width",
+      "1360270613.089"
+    ],
+    "target": [
+      "cactiStyle(substr(servers.mysql-sql101.loadavg.01,1))",
+      "cactiStyle(substr(servers.mysql-sql101.loadavg.processes_running,1))",
+      "cactiStyle(servers.mysql-sql101.mysql.Qcache_hits)",
+      "cactiStyle(servers.mysql-sql101.mysql.Qcache_inserts)",
+      "cactiStyle(servers.mysql-sql101.mysql.Qcache_lowmem_prunes)",
+      "cactiStyle(servers.mysql-sql101.mysql.Qcache_queries_in_cache)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Qcache_not_cached)),1)"
+    ],
+    "title": [
+      "Load Average with OS Processes Running",
+      "MySQL Query Cache "
+    ],
+    "height": [
+      "400",
+      "400"
+    ],
+    "width": "600",
+    "_uniq": [
+      "0.9722856058312797",
+      "0.4331977184827388"
+    ],
+    "template": [
+      "hicon_white",
+      "hicon_white"
+    ],
+    "hideLegend": "false"
+  },
+  {
+    "target": [
+      "cactiStyle(servers.mysql-sql101.mysql.Qcache_free_memory)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Qcache_total_blocks)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Qcache_free_blocks)),1)"
+    ],
+    "title": "MySQL Query Cache Memory",
+    "height": "400",
+   "width": "600",
+    "_uniq": "0.4568040191786269",
+    "_salt": "1360268806.876",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Select_full_range_join)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Select_scan)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Select_range_check)),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Select_range),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Select_full_join),1)"
+    ],
+    "title": "MySQL Select Types ",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.7704859365087914",
+    "_salt": "1360338196.78",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "cactiStyle(servers.mysql-sql101.mysql.Handler_commit)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Handler_savepoint_rollback)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Handler_rollback)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Handler_savepoint)),1)"
+    ],
+    "title": "MySQL Transaction Handlers",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.6351667902060573",
+    "_salt": "1360339789.834",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_prepare),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_first),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_key),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_next),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_prev),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_rnd),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_read_rnd_next),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_write),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Handler_update),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Handler_rollback),1)),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Handler_savepoint_rollback),1)),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Handler_delete),1)),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Handler_savepoint),1)),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.Handler_discover),1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL Handlers (For Index evalutation and Usage)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.07424872409400418",
+    "_salt": "1360267811.357",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "cactiStyle(servers.mysql-sql101.mysql.Sort_merge_passes)",
+      "cactiStyle(servers.mysql-sql101.mysql.Sort_range)",
+      "cactiStyle(servers.mysql-sql101.mysql.Sort_rows)",
+      "cactiStyle(servers.mysql-sql101.mysql.Sort_scan)"
+    ],
+    "title": "MySQL Sort Types ",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.4261977860405596",
+    "_salt": "1360338431.849",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_trx_history_list_length),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Innodb Transactions (Purge Rate)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.2499635772583101",
+    "_salt": "1360261977.354",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_row_lock_time),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_row_lock_time_avg),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Innodb_row_lock_time_max),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Innodb_row_lock_current_waits)),1)",
+      "substr(secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Innodb_row_lock_waits)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Innodb Row Locks ",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.7698950147099306",
+    "_salt": "1360185899.342",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.mysql.Table_locks_waited,1)",
+      "substr(servers.mysql-sql101.mysql.Table_locks_immediate,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.mysql.Slow_queries,1)),1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.mysql.Slow_launch_threads,1)),1)"
+    ],
+    "title": "MySQL Locks",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.14254777869547652",
+    "_salt": "1360338759.442",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Binlog_*),1)",
+      "substr(secondYAxis(substr(cactiStyle(servers.mysql-sql101.mysql.*binlog*),1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL BInary Logs",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.6366533280490138",
+    "_salt": "1360262605.119",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "cactiStyle(servers.mysql-sql101.mysql.Questions)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_update)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_insert)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_select)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_update_multi)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_insert_select)",
+      "cactiStyle(servers.mysql-sql101.mysql.Com_replace_select)",
+      "secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Com_delete))",
+      "secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Com_replace))",
+      "secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Com_load))",
+      "secondYAxis(cactiStyle(servers.mysql-sql101.mysql.Com_delete_multi))"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL Command Counters",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.4690809852162131",
+    "_salt": "1360262997.048",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "legendValue(substr(servers.mysql-sql101.mysql.Open_tables,1),\"last\")",
+      "legendValue(substr(secondYAxis(servers.mysql-sql101.mysql.Opened_tables),1),\"last\")",
+      "legendValue(cactiStyle(servers.mysql-sql101.mysql.Open_files),\"last\")"
+    ],
+    "title": "MySQL Files and Tables",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.44664482943305994",
+    "_salt": "1360264175.151",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.network.bond0.*.*x_bit,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.network.bond0.*1.*x_[ed]*,1)),1)"
+    ],
+    "title": "MySQL VIF (Virtual Interfaces)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.6502938372662852",
+    "_salt": "1360695234.797",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Bytes_sent),1)",
+      "substr(cactiStyle(servers.mysql-sql101.mysql.Bytes_received),1)"
+    ],
+    "hideLegend": "false",
+    "title": "MySQL Global Status Network Traffic",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.3322001581700722",
+    "_salt": "1360268307.306",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "alias(removeBelowValue(drawAsInfinite(derivative(servers.mysql-sql101.mysql.Uptime)),0.25),\"Mysql reboot events\")",
+      "alias(divideSeries(servers.mysql-sql101.cpu.total.user,sumSeries(servers.mysql-sql101.cpu.total.*)),\"Percent CPU USER\")",
+      "alias(divideSeries(servers.mysql-sql101.cpu.total.system,sumSeries(servers.mysql-sql101.cpu.total.*)),\"Percent CPU system\")"
+    ],
+    "title": "MySQL Reboot events ",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.321100067500373",
+    "_salt": "1371576610.866",
+    "template": [
+      "hicon_white",
+      "hicon_white"
+    ]
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.iostat.dm-6.iops,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.util_percentage,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.reads_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.service_time,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.read_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.write_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.writes_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.await,1)",
+      "substr(servers.mysql-sql101.iostat.dm-6.*_await,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.iostat.dm-6.io_milliseconds_weighted,1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Disk dm-6 (mysqltemp)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.2085524245495015",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.iostat.dm-8.iops,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.util_percentage,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.reads_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.service_time,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.read_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.write_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.writes_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.await,1)",
+      "substr(servers.mysql-sql101.iostat.dm-8.*_await,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.iostat.dm-8.io_milliseconds_weighted,1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Disk dm-8 (mysqllogs)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.04130173062486764",
+    "template": "hicon_white"
+ },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.iostat.dm-9.iops,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.util_percentage,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.reads_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.service_time,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.read_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.write_requests_merged_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.writes_per_second,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.await,1)",
+      "substr(servers.mysql-sql101.iostat.dm-9.*_await,1)",
+      "substr(secondYAxis(substr(servers.mysql-sql101.iostat.dm-9.io_milliseconds_weighted,1)),1)"
+    ],
+    "hideLegend": "false",
+    "title": "Disk dm-9 (mysql-ssd)",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.2746045964130759",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "alias(lineWidth(color(averageSeries(servers.mysql-*sql10*.loadavg.01),\"00FF66\"),3),\"Overall Load AVG\")",
+      "cactiStyle(substr(mostDeviant(3,servers.mysql-*sql10*.loadavg.01),1))"
+    ],
+    "title": "Top 3 Most Deviant Load Average across all Contacts Cells",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.6629536593037142",
+    "template": "hicon_white"
+  },
+  {
+    "target": [
+      "substr(servers.mysql-sql101.vmstat.pgpg*,1)",
+      "substr(secondYAxis(servers.mysql-sql101.vmstat.pswp*),1)"
+    ],
+    "title": "VMSTAT Paging Info",
+    "height": "400",
+    "width": "600",
+    "_uniq": "0.4084594499773372",
+    "_salt": "1360785642.402",
+    "template": "hicon_white"
+  }
+]
+ 

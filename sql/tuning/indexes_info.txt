@@ -1,0 +1,59 @@
+SELECT
+    `taggings` . *
+FROM
+    `taggings`
+WHERE
+    (taggings.account_id = '1116556930718')
+        AND (((`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'31f682c0979f11e3a7b9d4ae528440')
+        OR (`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'31f6a9d0979f11e3a7b9d4ae528440')
+        OR (`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'31f6a9d0979f11e3a7bad4ae528440')
+…  -- Lots of OR clauses removed for brevity
+        OR (`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'3961ecc0979f11e3aa8ed4ae528440')
+        OR (`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'3961ecc0979f11e3aa8fd4ae528440')
+        OR (`taggings`.`account_id` = 1116556930718
+        AND `taggings`.`contact_id` = x'3961ecc0979f11e3aa90d4ae528440')))
+ 
+******************** 1. row *********************
+           id: 1
+  select_type: SIMPLE
+        table: taggings
+   partitions: p2
+         type: ref
+possible_keys: PRIMARY
+          key: PRIMARY
+      key_len: 8
+          ref: const
+         rows: 563066
+        Extra: Using where; Using index
+1 rows in set
+ 
+The primary key consists of: account_id, tag_id, contact_id in that order.
+ 
+Testing,  created a unique index with a different order : account_id, contact_id, tag_id.
+ 
+Results: 
+ 
+******************** 1. row *********************
+           id: 1
+ select_type: SIMPLE
+        table: taggings
+   partitions: p2
+         type: range
+possible_keys: PRIMARY,tag_idx_test
+          key: uix_test
+      key_len: 24
+          ref:
+         rows: 500
+        Extra: Using where; Using index
+1 rows in set
+ 
+Testing, the speed of this query before/after:
+
+Before  /  After  
+10.842 sec / 0.000 sec
+ 

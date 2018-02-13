@@ -1,0 +1,105 @@
+Liquibase Documentation examples attached.
+ 
+The standards the manual process follows are here at https://wiki.roving.com/display/EngOps/CTCT+Standards+for+MySQL+Schema+Changes
+ 
+In 2012, Long ago I put Liquibase on p2-dbsbxsql101.ad.prodcc.net with Puppet.
+The files are put into place with the p2-dbsbxsql101.pp manifest
+See https://github.roving.com/ES/puppet/blob/release/modules/site/mysql_site/manifests/qa/p2-dbsbxsql101.pp
+ 
+                Excerpts:
+                                           file { "${liquibase_dir}/liquibase.jar":
+    source  => 'puppet:///modules/mysql_site/liquibase.jar',
+    mode    => '0555',
+    owner   => 'mysql',
+    group   => 'mysql',
+    require => File['/usr/local/liquibase']
+  }
+ 
+  file { "${liquibase_dir}/mysql-connector-java-5.1.18-bin.jar":
+    source  => 'puppet:///modules/mysql_site/dist/mysql-connector-java-5.1.18-bin.jar',
+    mode    => '0555',
+    owner   => 'mysql',
+    group   => 'mysql',
+    ensure  => 'present',
+    require => File['/usr/local/liquibase']
+  }
+ 
+ 
+What is there now:
+ 
+1.       Classpath is set to
+a.       echo $CLASSPATH
+/usr/local/liquibase
+ 
+2.       Contents of the /usr/local/liquibase directory
+ls -ltra /usr/local/liquibase
+drwxr-xr-x 14 root  root    4096 Oct 18  2012 ..
+-r-xr-xr-x  1 mysql mysql 913458 Oct 18  2012 liquibase.jar
+-rwxr-x---  1 mysql mysql 789885 Dec 10  2012 mysql-connector-java-5.1.18-bin.jar
+drwxr-xr-x  2 root  root    4096 Jun  2 15:50 .
+-rwxr-x---  1 mysql mysql 959987 Jun  2 15:50 mysql-connector-java-5.1.33-bin.jar  ** I put that there manually today **
+ 
+How to generate the schema from the database itself the syntax is below:
+On stage or prod a new server would have to be configured so it could reverse engineer the schema with the Liquibase and ConnectorJ jarfiles
+ 
+java -jar ${CLASSPATH}/liquibase.jar --classpath=${CLASSPATH}/mysql-connector-java-5.1.18-bin.jar --url=jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost --driver=com.mysql.jdbc.Driver --username=boostadm1 --password=redacted --changeLogFile=${HOME}/F1_Boost_generatedSchema.xml generateChangeLog
+ 
+INFO 6/2/15 3:38 PM:liquibase: Reading tables for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading views for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading foreign keys for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading primary keys for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading columns for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading unique constraints for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Reading indexes for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: Sequences not supported for boostadm1@10.20.97.96 @ jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost ...
+INFO 6/2/15 3:38 PM:liquibase: /home/hschmidt/F1_Boost_generatedSchema.xml does not exist, creating
+Liquibase 'generateChangeLog' Successful
+ 
+Asides:
+The F1 server DOES NOT have Java installed so you can’t run the liquibase commands there.
+I put these things there just in case. If JDK 1.7 was pushed with Puppet then it’s a matter of putting the latest Liquibase and ConnectorJ jarfile in a directory where the ${CLASSPATH} knows of it.
+ 
+F1
+[mysql@p2-dblqa105 liquibase]$ pwd
+/dbscratch/liquibase
+[mysql@p2-dblqa105 liquibase]$ ls -ltra
+total 2860
+-rw-r--r-- 1 mysql mysql         1941833 Jun  2 15:31 liquibase.jar
+-rw-r--r-- 1 mysql mysql          959987 Jun  2 15:31 mysql-connector-java-5.1.33-bin.jar
+drwxrwxr-x 4 mysql unix_database    4096 Jun  2 15:35 ..
+-rw-rw-r-- 1 mysql mysql             660 Jun  2 15:43 regenerate_boot_example.sh
+drwxrwxr-x 2 mysql mysql            4096 Jun  2 15:43 .
+
+[mysql@p2-dblqa105 liquibase]$ cat regenerate_boot_example.sh
+#!/bin/bash -xv
+ 
+# Written by heidi schmidt 06-02-2015
+#
+# This is the typical way to reverse engineer the schema into a xml changeset
+#
+ 
+#
+# I would run this XML against
+# the copy of Boost as F1_Boost_Copy and then do a diff between F1_Boost and F1_Boost_Copy to see what is different between the two
+#
+#
+ 
+export CLASSPATH=/dbscratch/liquibase
+java -jar ${CLASSPATH}/liquibase.jar --classpath=${CLASSPATH}/mysql-connector-java-5.1.33-bin.jar --url=jdbc:mysql://p2-dblqa105.ad.prodcc.net/F1_Boost --driver=com.mysql.jdbc.Driver --username=boostadm1 --password=readacted --changeLogFile=/dbscratch/liquibase/F1_Boost_generatedSchema.xml generateChangeLog
+ 
+ 
+Some examples in general that can be run on D1 only as the hschmidtnx1 sandbox doesn’t have connections to anything higher than local office (i.e. D1)
+ 
+[hschmidt@hschmidtnx1 Liquibase]$ hostname
+hschmidtnx1.roving.com
+[hschmidt@hschmidtnx1 Liquibase]$ pwd
+/home/hschmidt/Liquibase
+[hschmidt@hschmidtnx1 Liquibase]$ ls -ltra
+total 4540
+-rwxr-xr-x  1 hschmidt unix_database  775688 Sep 20  2012 mysql-connector-java-5.1.14-bin.jar
+-rwxr-xr-x  1 hschmidt unix_database  913458 Sep 20  2012 liquibase.jar.old
+-rw-r--r--  1 hschmidt unix_database   10408 Oct  1  2012 PassSvc_Example_Run_D1_10012012.txt
+-rw-r--r--  1 hschmidt unix_database 1941833 Dec  5 15:07 liquibase.jar
+-rw-r--r--  1 hschmidt unix_database  959987 Dec  5 15:08 mysql-connector-java-5.1.33-bin.jar
+drwxr-xr-x  2 hschmidt unix_database    4096 Dec  5 15:08 .
+drwx------ 34 hschmidt unix_database   12288 Jun  1 09:24 ..

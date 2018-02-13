@@ -1,0 +1,165 @@
+Space: the Final Frontier – a story of MySQL Compression
+DECEMBER 8, 2014 BY HEIDI SCHMIDT 
+Space: the final fontier.
+
+Space, as in disk space, that is, was the driving factor behind a recent data compression project I worked on, along with a whole host of individuals and teams at Constant Contact.
+
+Due to ongoing data growth, my team was tasked with finding the best option for compressing data within the Contacts environment.
+
+Here are some of the things we had to consider:
+
+The conscious decision to scale the application horizontally.
+Limitations imposed by the original rules that split the data out at the load balancer.
+Internal constraints on disk type (SSD) and the amount of available space.
+The infrastructure limitations were:
+
+Compression was okay in MySQL 5.5 , but 5.6 had more monitoring built in (and we were far behind on the upgrade path)
+Continuent’s Tungsten 2.0 only worked with MySQL 5.6 — MySQL changed CRC checks and the format for Binary logging in 5.6 which is not compatible with the older version of Tungsten.
+We decided on a solution that required us to update the following related technologies and products:
+
+JDBC Driver
+Replication software (Tungsten to 2.0)
+SSD Drivers
+Here’s a closer look at the takeaways from our data compression project:
+
+Data type inventory
+
+In order to determine what impact  compression was going to have on the amount of space used by the application, we had to inventory the data types in use. We used a mixture of “procedure analyze” along with a variation on the simple SQL below to inventory the database.
+
+Using MySQL “procedure analyze” it was a simple dynamic concat SQL statement built on information_schema columns to get the basic framework for the data length with representative values reflecting actual production values.
+
+The basic way to inventory and evaluate your data is:
+
+select column_name from table_name PROCEDURE ANALYSE();
+SELECT table_name, data_type, COUNT(column_name)
+FROM information_schema.COLUMNS<br />WHERE table_schema ='&lt;schema_name&gt;'
+GROUP BY table_name,data_type;
+
+Numerical data and timestamp’s wouldn’t benefit from compression and we wanted to see for ourselves what varchar and other character based data types would perform like on the servers. We had bigint, binary, decimal, enum, date, datetime, varchar, and text fields. Testing revealed that most of the data could be compressed; we also decided to make datatypes  that weren’t as efficient for compression dynamic.
+
+Here is a good explanation of compressed versus dynamic versus compact.
+
+Determining a compression schema
+
+At the time of this project there were two compression methods available to us: MySQL Compression and the Tokutek compression engine.
+
+Tokutek
+When we evaluated the Tokutek engine, we were running MySQL 5.5.17 on CentOS using HugePages, with about 30G of data split 50/50 between data and indexes. Tokutek at the time wasn’t able to work with HugePages turned on and it required a special backup/snapshot for the data. We didn’t have the file systems tested for either of these conditions. The Tokutek engine wasn’t incorporated into the package as it is now with MariaDB, and when we turned it on it made a land grab for memory above and beyond the pages dedicated to MySQL.
+
+Testing uncovered that the push down of the changes through its index meant that a series of “optimize table” after several “alter table add/drop columns” caused the MySQL daemon to crash due to the rate of change.
+
+Upon discovering this, the team re-coded so that buffering went less to memory and more to disk. We worked very closely with Tokutek’s Tim Callahan, who was always available to us during the testing and investigation phases of the project. It’s always best to confirm what the current state is with a vendor early in the process.
+
+Why didn’t we go to MariaDB?
+Even though MariaDB is plug-and-play, and has lots of features that are desirable down the road, there were too many unknowns. That, along with the amount of Puppet work we’d have to do for our environment made it unlikely we could implement it in the established timeline we were working with. We needed to keep most of the changes monitored and as manageable as possible, and therefore we ruled out MariaDB.
+
+Preparing for compression
+
+Here is how we prepared for compression in MySQL 5.6:
+
+Make sure innodb_file_per_table is ON (In my.cnf).
+Make sure innodb_file_format and innodb_file_format_max is Barracuda (Set currently to Antelope in 5.5 by default).
+Run tests in lower environments with as much real production data as possible. (That is a lesson learned as you will see below when we got to Production).
+
+alter table table_name ROW_FORMAT=COMPACT KEY_BLOCK_SIZE=8;
+
+We chose 8192 as reading up on it showed the default was mainly useful.
+Our OS is 4K block formatted by default so that also drove the decision to keep it to 2 reads per MySQL page per compression/un-compression instead of 4.
+In our testing we did not find that a larger key block size was not necessary as we did not encounter any page failures.
+And we have innodb_strict_mode set OFF.
+Here is a good discussion of how to choose the right methods for your environment.
+
+Our testing and analysis had shown us that we had a good candidate for compression. Reads were going to be key to our use of compression — our usage is about half reads and half writes. The Compression internals page states how InnoDB looks for the page:
+
+“MySQL reads the compressed page from disk if it is not already in the buffer pool, then un-compresses the page to its original form. This section describes how InnoDB manages the buffer pool with respect to pages of compressed tables. “
+
+Monitoring and assessing performance
+
+You can use the following INFORMATION_SCHEMA tables to monitor the InnoDB compressed tables performance. The equivalent reset tables reset the data once a select is run on them, so use that carefully between tests and use the ability to grab now as a timestamp to chart the timeline of changes.
+
+INNODB_CMP
+INNODB_CMP_PER_INDEX
+INNODB_CMPMEM
+Based on the information schema compression monitoring table INNODB_CMP_PER_INDEX and the files sizes after compression, we concluded that we could anything without an ideal ratio or disk savings dynamic or compact.
+
+Running these queries gave us good insight into the system performance:
+
+select compress_ops_ok/compress_ops as compress_ratio, now()
+from INFORMATION_SCHEMA.INNODB_CMP
+where page_size = 8192;
+
+SELECT buffer_pool_instance "8K Buffer Pool", pages_used "Pages Used", pages_free "Pages Free",
+relocation_ops "# Reloc.", relocation_time "Reloc. (s)"
+FROM information_schema.INNODB_CMPMEM WHERE page_size=8192;
+
+SELECT SUBSTR(table_name,1,INSTR(table_name,'#')-1) AS "Table",
+index_name AS "Index",
+COUNT(index_name) AS "# Parts",
+SUM(compress_ops) AS "# CMP Ops",
+SUM(compress_ops_ok) AS "# CMP OK",
+SUM(compress_ops_ok)/SUM(compress_ops) AS "CMP Ratio",
+SUM(uncompress_ops) AS "#UCMP Ops",
+SUM(compress_time) AS "CMP (s)",
+SUM(uncompress_time) AS "UCMP (s)"
+FROM information_schema.INNODB_CMP_PER_INDEX
+GROUP BY 1,2
+ UNION ALL
+ 
+SELECT '---------------------' AS "Table", '------------------- DB TOTAL -------------------' AS "Index",
+ part AS "# Parts", compress_ops "# CMP Ops",
+compress_ops_ok "# CMP OK", compress_ops_ok/compress_ops "CMP Ratio",
+uncompress_ops "#UCMP Ops", compress_time "CMP (s)", uncompress_time "UCMP (s)"
+ FROM information_schema.INNODB_CMP INNER JOIN (SELECT COUNT(index_name)
+part FROM information_schema.INNODB_CMP_PER_INDEX) AS b
+WHERE page_size = 8192;
+ 
+SELECT table_name "Table", ROW_FORMAT "Row Format",
+ table_rows "Num Rows",AVG_ROW_LENGTH "Avg Row Len",
+ table_rows*AVG_ROW_LENGTH "Rows X Len",
+ ROUND(((data_length + index_length) / 1024 / 1024), 2) "Size (MB)"
+ FROM information_schema.tables
+ WHERE table_schema LIKE '%Contacts%' AND table_type LIKE '%TABLE%'
+ ORDER BY CASE WHEN ROW_FORMAT='Compact'
+ THEN 1 WHEN ROW_FORMAT='Dynamic' THEN 2 ELSE 3 END,
+ (data_length + index_length) ASC, table_name;
+TEMP SPACE: The second final frontier
+
+We learned the hard way that issuing the compression in parallel as is was problematic with temp space when we got to Production with the default INPLACE algorithm. Once we set COPY algorithm we found that less temp space was used with additional tradeoffs between locking and non-locking transactions.
+
+The MySQL temporary space was being used to recreate the tables and indices because the compression is behaving like an OPTIMIZE table statement when the engine is INNODB, recreating tables and indexes ordered.
+
+The compression was great for reclaiming space and reducing fragmentation at the point of execution, although it did cause a higher load on the MySQL data and temp directories. This is because the processes use this space for doing the overhead work behind the scenes in the OS directories in #sql names files. In the MySQL temp directory there is no real way to see the files being created. In the MySQL data directory you’ll see the number of sql files associated with each table being compressed. If you run into the following error , you will either have to increase the log max size or stagger how many tables you are trying to compress at one time (we fell into the latter category):
+
+"ERROR 1799 (HY000) at line 1: Creating index 'PRIMARY'
+required more than 'innodb_online_alter_log_max_size'
+bytes of modification log.”
+
+Read this to get a good context on the fast index creation. Also, this post in the Oracle InnoDB blog discusses Fast Index creation indicating the use of MySQL temp, quoted here:
+
+” … the main advantage is that InnoDB will execute a merge-sort algorithm before inserting the index records into each index that is being created. This should speed up the insert into the secondary index B-trees and potentially result in a better B-tree fill factor.”
+
+Running out of temp space
+We had only so much scratch space in the MySQL data directory and only so much space in MySQL Temporary directory. This was still “Space: the final frontier!” Both data and temp space were needed in order for the compression statement to rebuild the table. When we were testing in the lower environments we used a third of the production data set that handled the rate of change. When we went to parallelize production with the full production data set that was three times the size of our tests,  we ran out of temp space. We quickly adapted by:
+
+letting the smaller tables use temp space
+choosing the ALGORITHM COPY method for the larger tables
+For reference:
+SQL: ALTER TABLE ${DATABASE}.${TABLE} ALGORITHM [COPY|INPLACE] ROW_FORMAT [DYNAMIC|COMPRESSED]; — depending on the method needed to get around space errors
+OS: watch -n .5 -d ‘df -B 1’ —  keeps an eye on what file systems were changing with the blocks flag.  Using lsof, another way of looking at MySQL temp, doesn’t show what’s growing and how big.
+OS: As well as looking at the MySQL Data directory for the size and number of the #sql files created for each file being converted.
+Coordinating compression with Tungsten replication
+
+All this needed choreographing at night to make sure we wouldn’t impact the customers. Because we were running compression on MySQL, Tungsten replication was held up (locked by the COPY|INPLACE method). We needed to let Tungsten replication catch up from the  primary to the secondary so that all the changes in the binary logs would be up-to-date on the secondary server. From Oracle’s MySQL InnoDB blog:
+
+“The prepare and commit phases require an exclusive lock, blocking all access to the table. If MySQL times out while upgrading the table meta-data lock for the commit phase, it will roll back the ALTER TABLE operation. In MySQL 5.6, data definition language operations are still not fully atomic, because the data dictionary is split. Part of it is inside InnoDB data dictionary tables. Part of the information is only available in the *.frm file, which is not covered by any crash recovery log. But, there is a single commit phase inside the storage engine.”
+
+Tungsten rewrites all transaction (Tx) logs and makes a copy of each MySQL Tx log (binary logs). We only had certain amounts of room on the MySQL log directory which we were using for the Continuent Tungsten reformatted copy of the MySQL binary logs. If replication had backed up more than 300GB we would have had to pause our ambitious parallelization of all the compression. So we had a well choreographed ballet of events going on to make sure compression was going smoothly:
+
+Watching the disk (df)
+Watching the CPU and memory (memory never fluctuated like Tokutek did in our “rebuild” and our load never went over 5 during the work) (Nagios)
+Watching Tungsten Replication for any blips or alerts (Nagios)
+Results
+
+The original serial compression testing we did on the lower environments, using one-third of the production data, took 48 hours. In production, we were able to reduce this down to 8-10 hours total, compressing three times the amount of data at 700-800 GB by using parallelization and other techniques. After compression, the systems disk usage went down to 220-260 GB from 700 – 800 GB. With this win, we are planning projects to compress more production database tables.
+
+Share your compression-related story in the comments section below!
